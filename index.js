@@ -8,6 +8,7 @@ var through = require('through2');
 var url = require('url');
 
 function sha1(filePath) {
+
 	return crypto.createHash('md5')
 		.update(fs.readFileSync(filePath))
 		.digest('hex').slice(-7);
@@ -19,6 +20,7 @@ function buildMD5File(src) {
 			return '_' + md5 + ext;
 		}));
 
+  
 	if(!fs.existsSync(destFullPath)){
 		fs.writeFileSync(destFullPath, fs.readFileSync(src));
 	}
@@ -33,9 +35,9 @@ module.exports = function (options) {
 	asset = options.asset || process.cwd();
 
 	md5BuildAsset = options.md5BuildAsset;
-
-	reg = new RegExp('["\'\\(]\\s*([\\w\\_\/\\.\\-]*\\.(' + (options.exts ? options.exts.join('|') : 'jpg|jpeg|png|gif|cur|js|css') + '))([^\\)"\']*)\\s*[\\)"\']', 'gim');
-
+  
+	reg = new RegExp('["\'\\(\\r\\n]\\s*([\\w\_\/\.\-]*\\.(' + (options.exts ? options.exts.join('|') : 'jpg|jpeg|png|gif|cur|js|css') + '))\\s*((?:\\s\\d+[wx])?[^\)"\'\,]*)(?:[\)"\'\,])', 'gim');
+  
 	return through.obj(function (file, enc, callback) {
 		if (file.isNull()) {
 			this.push(file);
@@ -51,6 +53,7 @@ module.exports = function (options) {
 
 		contents = file.contents.toString().replace(reg, function (content, filePath, ext, other) {
 			var fullPath;
+          
 
 			if (/^\//.test(filePath)) {
 				fullPath = path.resolve(asset, filePath.slice(1));
@@ -59,17 +62,17 @@ module.exports = function (options) {
 			}
 
 			if (fs.existsSync(fullPath)) {
+              
 				if (md5BuildAsset) {
-
 					fullPath = path.join(md5BuildAsset, path.relative(asset, fullPath));
 
 					return content.replace(path.basename(filePath), buildMD5File(fullPath));
 				} else {
-					var hashURL = url.parse(filePath + other, true);
+					var hashURL = url.parse(filePath, true);
 					hashURL.search = '';
 					hashURL.query.v = sha1(fullPath);
-
-					return content.replace(other, '').replace(filePath, url.format(hashURL));
+                  
+					return content.replace(filePath, url.format(hashURL));
 				}
 			} else {
 				return content;
