@@ -36,7 +36,7 @@ module.exports = function (options) {
 
 	md5BuildAsset = options.md5BuildAsset;
   
-	reg = new RegExp('["\'\\(\\r\\n]\\s*([\\w\_\/\.\-@]*\\.(' + (options.exts ? options.exts.join('|') : 'jpg|jpeg|png|gif|cur|js|css') + '))\\s*((?:\\s\\d+[wx])?[^\)"\'\,]*)(?:[\)"\'\,])', 'gim');
+	reg = new RegExp('["\'\\(\\r\\n]\\s*([\\w@\_\/\.\-]*\\.(' + (options.exts ? options.exts.join('|') : 'jpg|jpeg|png|gif|cur|js|css') + '))\\s*((?:\\s\\d+[wx])?[^\)"\'\,]*)(?:[\)"\'\,])', 'gim');
   
 	return through.obj(function (file, enc, callback) {
 		if (file.isNull()) {
