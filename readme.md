@@ -1,12 +1,14 @@
 gulp-static-hash
 =============
 
+[![Build Status](https://travis-ci.org/holisticon/gulp-static-hash.svg?branch=master)](https://travis-ci.org/holisticon/gulp-static-hash)
+
 > A gulp plugin for cache files by adding a hash version append their name(like a.js?v=hash).
 
 ## Install
 
 ```
-npm install --save-dev gulp-static-hash
+npm install --save-dev @holisticon/gulp-static-hash
 ```
 
 
