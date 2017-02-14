@@ -9,7 +9,7 @@
     "gulpplugin"
   ],
   "scripts": {
-    "test": "mocha tests --reporter mocha-junit-reporter --reporter-options mochaFile=./target/TEST-hashing.xml",
+    "test": "mocha tests --reporter mocha-junit-reporter --reporter-options mochaFile=./target/test-reports/TEST-hashing.xml",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
     "changelog:add": "git add CHANGELOG.md && git commit -m 'updated CHANGELOG.md'",
     "release:pre": "npm run test",
