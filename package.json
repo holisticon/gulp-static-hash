@@ -1,36 +1,52 @@
 {
-	"name": "stitch-gulp-static-hash",
-	"version": "0.1.7",
-	"description": "A gulp plugin for cache files by adding a hash version append their name(like a.js?v=hash) or create a hash named file",
-	"license": "MIT",
-	"keywords": [
-		"cache",
-		"md5",
-		"version",
-		"gulpplugin"
-	],
-	"author": {
-		"name": "stitch media",
-		"email": "contact@stitchmedia.ca"
-	},
-	"homepage": "https://github.com/stitchmedia/gulp-static-hash",
-	"repository": {
-		"type": "git",
-		"url": "git@github.com:stitchmedia/gulp-static-hash.git"
-	},
-	"scripts": {
-		"test": "mocha tests"
-	},
-	"files": [
-		"index.js"
-	],
-	"dependencies": {
-		"gulp-util": "^3.0.0",
-		"through2": "^0.5.1"
-	},
-	"devDependencies": {
-		"concat-stream": "^1.4.6",
-		"gulp": "^3.8.7",
-		"mocha": "*"
-	}
+  "name": "@holisticon/gulp-static-hash",
+  "version": "0.2.0",
+  "description": "A gulp plugin for cache files by adding a hash version append their name(like a.js?v=hash) or create a hash named file",
+  "keywords": [
+    "cache",
+    "md5",
+    "version",
+    "gulpplugin"
+  ],
+  "scripts": {
+    "test": "mocha tests",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
+    "changelog:add": "git add CHANGELOG.md && git commit -m 'updated CHANGELOG.md'",
+    "release:pre": "npm run test",
+    "release:post": "npm run changelog && npm run changelog:add",
+    "release:major": "npm version major && npm run release:pre && git push origin && git push origin --tags && npm run release:post && npm publish",
+    "release:minor": "npm version minor && npm run release:pre && git push origin && git push origin --tags && npm run release:post && npm publish",
+    "release:patch": "npm version patch && npm run release:pre && git push origin && git push origin --tags && npm run release:post && npm publish"
+  },
+  "files": [
+    "index.js"
+  ],
+  "dependencies": {
+    "gulp-util": "^3.0.0",
+    "through2": "^0.5.1"
+  },
+  "devDependencies": {
+    "concat-stream": "1.4.6",
+    "conventional-changelog-cli": "1.2.0",
+    "gulp": "3.8.7",
+    "mocha": "3.2.0"
+  },
+  "homepage": "https://github.com/holisticon/gulp-static-hash",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:holisticon/gulp-static-hash.git"
+  },
+  "author": "Martin Reinhardt",
+  "contributors": [
+    {
+      "name": "stitch media",
+      "email": "contact@stitchmedia.ca"
+    }
+  ],
+  "license": "MIT",
+  "engine-strict": true,
+  "engines": {
+    "node": ">= 4.4",
+    "npm": ">= 3"
+  }
 }
