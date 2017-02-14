@@ -9,79 +9,92 @@ var url = require('url');
 
 function sha1(filePath) {
 
-	return crypto.createHash('md5')
-		.update(fs.readFileSync(filePath))
-		.digest('hex').slice(-7);
+  return crypto.createHash('md5')
+    .update(fs.readFileSync(filePath))
+    .digest('hex').slice(-7);
 }
 
 function buildMD5File(src) {
-	var md5 = sha1(src),
-		destFullPath = path.join(path.dirname(src), path.basename(src).replace(/\.[^\.]+$/, function(ext){
-			return '_' + md5 + ext;
-		}));
+  var md5 = sha1(src),
+    destFullPath = path.join(path.dirname(src), path.basename(src).replace(/\.[^\.]+$/, function (ext) {
+      return '_' + md5 + ext;
+    }));
 
-  
-	if(!fs.existsSync(destFullPath)){
-		fs.writeFileSync(destFullPath, fs.readFileSync(src));
-	}
 
-	return path.basename(destFullPath);
+  if (!fs.existsSync(destFullPath)) {
+    fs.writeFileSync(destFullPath, fs.readFileSync(src));
+  }
+
+  return path.basename(destFullPath);
 }
 
 module.exports = function (options) {
-	options = options || {};
-	var contents, mainPath, reg, asset, md5BuildAsset;
+  options = options || {};
+  var contents, mainPath, reg, asset, md5BuildAsset;
 
-	asset = options.asset || process.cwd();
+  asset = options.asset || process.cwd();
 
-	md5BuildAsset = options.md5BuildAsset;
-  
-	reg = new RegExp('["\'\\(\\r\\n]\\s*([\\w@\_\/\.\-]*\\.(' + (options.exts ? options.exts.join('|') : 'jpg|jpeg|png|gif|cur|js|css') + '))\\s*((?:\\s\\d+[wx])?[^\)"\'\,]*)(?:[\)"\'\,])', 'gim');
-  
-	return through.obj(function (file, enc, callback) {
-		if (file.isNull()) {
-			this.push(file);
-			return callback();
-		}
+  md5BuildAsset = options.md5BuildAsset;
 
-		if (file.isStream()) {
-			this.emit('error', new gutil.PluginError('gulp-static-hash', 'Streams are not supported!'));
-			return callback();
-		}
+  reg = new RegExp('["\'\\(\\r\\n]\\s*([\\w@\_\/\.\-]*\\.(' + (options.exts ? options.exts.join('|') : 'jpg|jpeg|png|gif|cur|js|css') + '))\\s*((?:\\s\\d+[wx])?[^\)"\'\,]*)(?:[\)"\'\,])', 'gim');
 
-		mainPath = path.dirname(file.path);
+  return through.obj(function (file, enc, callback) {
+    if (file.isNull()) {
+      this.push(file);
+      return callback();
+    }
 
-		contents = file.contents.toString().replace(reg, function (content, filePath, ext, other) {
-			var fullPath;
-          
+    if (file.isStream()) {
+      this.emit('error', new gutil.PluginError('gulp-static-hash', 'Streams are not supported!'));
+      return callback();
+    }
 
-			if (/^\//.test(filePath)) {
-				fullPath = path.resolve(asset, filePath.slice(1));
-			} else {
-				fullPath = path.resolve(mainPath, filePath);
-			}
+    mainPath = path.dirname(file.path);
 
-			if (fs.existsSync(fullPath)) {
-              
-				if (md5BuildAsset) {
-					fullPath = path.join(md5BuildAsset, path.relative(asset, fullPath));
+    contents = file.contents.toString().replace(reg, function (content, filePath, ext, other) {
+      var fullPath;
 
-					return content.replace(path.basename(filePath), buildMD5File(fullPath));
-				} else {
-					var hashURL = url.parse(filePath, true);
-					hashURL.search = '';
-					hashURL.query.v = sha1(fullPath);
-                  
-					return content.replace(filePath, url.format(hashURL));
-				}
-			} else {
-				return content;
-			}
-		});
 
-		file.contents = new Buffer(contents);
+      if (/^\//.test(filePath)) {
+        fullPath = path.resolve(asset, filePath.slice(1));
+      } else {
+        fullPath = path.resolve(mainPath, filePath);
+      }
 
-		this.push(file);
-		return callback();
-	});
+      if (fs.existsSync(fullPath)) {
+
+        if (md5BuildAsset) {
+          fullPath = path.join(md5BuildAsset, path.relative(asset, fullPath));
+
+          return content.replace(path.basename(filePath), buildMD5File(fullPath));
+        } else {
+          var hashURL = url.parse(filePath, true);
+          hashURL.search = '';
+          hashURL.query.v = sha1(fullPath);
+
+          var result = content.replace(filePath, url.format(hashURL));
+          var first = true;
+
+          //The arguments of the function are similar to $0 $1 $2 $3 etc
+          var fn_replaceBy = function (match, group1, group2) { //group in accordance with RE
+            if (first) {
+              first = false;
+              return match;
+            }
+            // Else, deal with RegExp, for example:
+            return '&';
+          };
+          result = result.replace(/(?!^)\?/g, fn_replaceBy);
+          return result;
+        }
+      } else {
+        return content;
+      }
+    });
+
+    file.contents = new Buffer(contents);
+
+    this.push(file);
+    return callback();
+  });
 };
